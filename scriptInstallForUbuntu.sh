@@ -177,14 +177,15 @@ if [ "$resposta" = "S" ] || [ "$resposta" = "y" ] || [ "$resposta" = "s" ] || [ 
 		sleep 4
 
 	fi
-
+	
+	sudo mkdir /home/logsSystem
 	sudo echo " #! /usr/bin/bash
-	sudo apt-get update -y > /home/logsSistem/asher.txt
-	sudo apt-get upgrade -y >> /home/logsSistem/asher.txt
+	sudo apt-get update -y > /home/logsSystem/logsUpdate.txt
+	sudo apt-get upgrade -y >> /home/logsSystem/logsUpdate.txt
 
-	" >>/home/asherScript.sh
+	" >>/home/userScript.sh
 
-	sudo chmod 777 /home/asherScript.sh
+	sudo chmod 777 /home/userScript.sh
 
 	sudo echo "[Unit]
 	Description=Service para rodar scripts após a inicialização do sistema
@@ -192,19 +193,19 @@ if [ "$resposta" = "S" ] || [ "$resposta" = "y" ] || [ "$resposta" = "s" ] || [ 
 
 	[Service]
 	Type=simple
-	ExecStart=/bin/sh /home/asherScript.sh
+	ExecStart=/bin/sh /home/userScript.sh
 	TimeoutStartSec=0
 
 	[Install]
 	WantedBy=default.target 
-	" >>/etc/systemd/system/asherScriptsDois.service
+	" >>/etc/systemd/system/userScript.service
 
-	sudo chmod 775 /etc/systemd/system/asherScriptsDois.service
+	sudo chmod 775 /etc/systemd/system/userScript.service
 
 	sudo systemctl daemon-reload
-	sudo systemctl enable asherScriptsDois.service
+	sudo systemctl enable userScript.service
 	sudo systemctl daemon-reload
-	sudo systemctl start asherScriptsDois.service
+	sudo systemctl start userScript.service
 
 	sudo apt-get upgrade -y
 
