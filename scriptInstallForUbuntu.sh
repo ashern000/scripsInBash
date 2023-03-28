@@ -1,218 +1,110 @@
-#! /bin/bash
+#!/usr/bin/env bash
+# ------------------------------------------------------------------------------------------------------- #
+#
+# 
+# Script de instalação de programas para Debian, Ubuntu e KaliLinux #
+# ------------------------------------------------------------------------------------------------------- #
+# 
+# Autor: Asher Novelli Bittencourt De Bortoli #
+# Site: github.com/ashern000 #
+# Manutenção: Asher Novelli Bittencourt De Bortoli #
+#
+# ------------------------------------------------------------------------------------------------------- #
+#
+# Historico: #
+# Testado em bash 5.1.16 em 25/02/2023 #
+# Testado em zsh 5.8.1-1 em 19/03/2023 #
+# Testado nas distros: Ubuntu e Lubuntu #
+# ------------------------------------------------------------------------------------------------------- #
+#
+# v1.0, 10/01/2022, Asher: #
+# Criação do script para a facilitação de pos instalação #
+#
+# v1.2, 25/02/2023, Asher: #
+# Melhorias no Script, tais como adicação de cores e resolução de bugs na instalação dos programas #
+
+# ------------------------------------------- VARIÁVEIS ------------------------------------------------- #
+
+PISCA_MENSAGEM="\033[34;1;5m"
+
+MENSAGEM_APRESENTACAO="$PISCA_MENSAGEM#---------------------------------------------------------------------------------# \033[m \n
+		  $(basename $0) - Powered by Asher
+$PISCA_MENSAGEM
+#---------------------------------------------------------------------------------# \033[m
+"
+
+PISCA="\033[32;1;5m"
+
+LISTA_PROGRAMAS=( 'curl' 'net-tools' 'snapd' 'bashtop' 'micro' 'vim' 'mpg123' 'htop' 'iotop' 'lolcat' 'ncdu' 'git' 'gparted' 'virtualbox' 'virtualbox-ext-pack' 'wine' 'neofetch' 'python3-venv' 'python3-pip' )
+LISTA_PROGRAMAS_SNAP=( 'qbittorrent-arnatious' 'code' 'vlc' 'gimp' )
+# ------------------------------------------- EXECUÇÃO ------------------------------------------------- #
+
+echo -e "$MENSAGEM_APRESENTACAO"
+
+echo -e "  		    \033[44;1m atualizando os programas e repositórios \033[m"
+
+sudo apt-get update -y > /dev/null
+sudo apt-get upgrade -y > /dev/null
+
+for i in "${LISTA_PROGRAMAS[@]}" ; do 
+	sleep 1 
+	[ "$i" = 'snapd' ] && $(sudo systemctl enable --now snapd apparmor)
+	sudo apt install "$i" -y  
+	echo -e "\n $PISCA $i \033[0m \n \n" 
+done 
+
+for i in "${LISTA_PROGRAMAS_SNAP[@]}" ; do
+	sleep 1
+	[ "$i" = 'code' ] && $(sudo snap install "$i" --classic)
+	sudo snap install "$i"
+	echo -e "\n $PISCA $i \033[0m \n \n" 
+done
+
+# Criação de script de inicialização? #
+sudo echo "[Unit]
+Description=Service para rodar scripts após a inicialização do sistema - Powered by Asher
+Before=network.target
+
+[Service]
+Type=simple
+ExecStart=/bin/sh /home/scriptUser.sh
+TimeoutStartSec=0
+
+[Install]
+WantedBy=default.target" >/etc/systemd/system/scriptUser.service
+
+sudo chmod 770 /etc/systemd/system/scriptUser.service
+
+sudo mkdir /home/logsSystem
+sudo echo "
+#!/usr/bin/env bash
+sudo apt update > /home/logsSystem/logScript.txt
+sudo apt upgrade >> /home/logsSystem/logScript.txt
+sudo apt autoremove >> /home/logsSystem/logScript.txt
+sudo apt autoclean >> /home/logsSystem/logScript.txt" >/home/scriptUser.sh
+
+sudo chmod 770 /home/scriptUser.sh
+
+sudo systemctl daemon-reload
+sudo systemctl enable scriptUser.service
+sudo systemctl start scriptUser.service
+sudo apt autoremove && sudo apt autoclean
+
+sudo apt-get install \
+    ca-certificates \
+    curl \
+    gnupg
+
+sudo mkdir -m 0755 -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+echo \
+  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-echo "############################################################################################################"
-echo "			     	            Olá ao script configuration do Asher :D 			"
-echo "############################################################################################################"
-echo " Deseja instalar os pacotes usuário?[S/n] "
-read resposta
+sudo apt-get update
 
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-
-if [ "$resposta" = "S" ] || [ "$resposta" = "y" ] || [ "$resposta" = "s" ] || [ $resposta = "Y" ]; then
-
-	sudo apt-get dist-upgrade -y
-
-	sudo apt-get update -y
-	
-	sudo apt-get upgrade
-
-	sleep 4
-
-	sudo apt-get install curl -y
-
-	echo "\n Curl instalado! \n"
-
-	sleep 4
-
-	sudo apt install net-tools -y
-
-	echo "\n Pacote NetTools instalado! \n"
-
-	sleep 4
-
-	sudo apt install micro -y
-
-	echo "\n Editor de texto Micro instalado! \n"
-
-	sleep 4
-
-	sudo apt install ncdu -y
-
-	echo "\n Ncdu instalado! \n"
-
-	sleep 4
-
-	sudo apt install bashtop -y
-
-	echo "\n BashTop instalado! \n"
-
-	sleep 4
-
-	sudo apt install git -y
-
-	echo "\n Git instalado! \n"
-
-	sleep 4
-
-	sudo apt install gparted -y
-
-	echo "\n Gparted instalado! \n"
-
-	sleep 4
-
-	sudo apt install virtualbox -y
-	sudo apt install virtualbox-ext-pack -y
-
-	echo "\n VirtualBox instalado! \n"
-
-	sleep 4
-
-	sudo apt install wine -y
-	sudo apt install wine-development -y
-
-	echo "\n Wine instalado! \n"
-
-	sleep 4
-
-	sudo apt install neofetch -y
-
-	echo "\n Neofetch instalado! \n"
-
-	sleep 4
-
-	sudo apt install python3-venv -y
-	sudo apt install python3-pip -y
-
-	echo "\n Pacotes do Python instalado! \n"
-
-	sleep 4
-
-	sudo apt install snapd -y
-
-	echo "\n Snapd instalado! \n"
-
-	sleep 4
-
-	sudo snap install vlc
-
-	echo "\n Vlc instalado! \n"
-
-	sleep 4
-
-	sudo snap install qbittorrent-arnatious
-
-	echo "\n QbitTorrent instalado! \n"
-
-	sleep 4
-
-	sudo snap install code --classic
-
-	echo "\n Visual Studio Code instalado! \n"
-
-	sleep 4
-
-	sudo apt install composer -y 
-
-	echo "\n Composer instalado! \n"
-
-	sleep 4
-
-	sudo apt install flatpak -y
-	flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-
-	echo "\n Flatpak instalado! \n"
-
-	flatpak install flathub com.discordapp.Discord
-
-	sleep 4
-
-	echo "\n Discord instalado! \n"
-
-	flatpak install flathub org.telegram.desktop
-
-	echo "\n Telegram instalado! \n"
-	
-	sleep 4
-
-	flatpak install flathub com.github.micahflee.torbrowser-launcher
-
-	echo "\n TOR instalado! \n"
-	
-	sleep 4
-
-	curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash - &&
-		sudo apt-get install -y nodejs
-
-	echo "\n NodeJs instalado! \n"
-
-	sleep 4
-
-	sudo apt install alacarte -y
-
-	echo "\n Alacarte instalado! \n"
-
-	sleep 4
-
-	sudo apt install zsh -y
-
-	echo "\n Zsh instalado! \n"
-
-	sleep 4
-
-	sudo chsh -s /bin/zsh
-
-	echo "\n Deseja instalar Tiling Window Manager(i3wm)?"
-	read respostaI3
-	if [ "$respostaI3" = "S" ] || [ "$respostaI3" = "s" ] || [ "$respostaI3" = "Y" ] || [ "$respostaI3" = "y" ]; then
-
-		sudo apt install i3 -y
-		sudo apt install i3blocks -y
-		sudo apt install nautilus -y
-		sudo apt install nautilus-data -y
-		sudo apt install nitrogen -y
-		sudo apt install cmus -y 
-
-		echo "\n Tiling Window Manager instalado! \n"
-
-		sleep 4
-
-	fi
-	
-	sudo mkdir /home/logsSystem
-	sudo echo " #! /usr/bin/bash
-	sudo apt-get update -y > /home/logsSystem/logsUpdate.txt
-	sudo apt-get upgrade -y >> /home/logsSystem/logsUpdate.txt
-
-	" >>/home/userScript.sh
-
-	sudo chmod 777 /home/userScript.sh
-
-	sudo echo "[Unit]
-	Description=Service para rodar scripts após a inicialização do sistema
-	After=network.target
-
-	[Service]
-	Type=simple
-	ExecStart=/bin/sh /home/userScript.sh
-	TimeoutStartSec=0
-
-	[Install]
-	WantedBy=default.target 
-	" >>/etc/systemd/system/userScript.service
-
-	sudo chmod 775 /etc/systemd/system/userScript.service
-
-	sudo systemctl daemon-reload
-	sudo systemctl enable userScript.service
-	sudo systemctl daemon-reload
-	sudo systemctl start userScript.service
-
-	sudo apt-get upgrade -y
-
-	sleep 3
-	echo "\n \n \n \n \n \n \n \n \n \n \n \n"
-	echo "\n §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§ \n 	Seu sistema está pronto para uso! \n §§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§§ \n"
-
-fi
-
-
+echo -e " \n Terminado!\n "
